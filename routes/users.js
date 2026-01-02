@@ -6,7 +6,6 @@ import authMiddleware from '../middleware/auth.js';
 
 const router = express.Router();
 
-// 🔹 Cadastro de Usuário (Padrão)
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -33,12 +32,10 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// 🔹 Cadastro de Administrador (Apenas Admins podem criar novos admins)
 router.post('/registerAdmin', authMiddleware, async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
-    // Apenas admins podem criar novos admins
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem criar novos administradores.' });
     }
@@ -65,7 +62,6 @@ router.post('/registerAdmin', authMiddleware, async (req, res) => {
   }
 });
 
-// 🔹 Login de Usuário
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -81,7 +77,6 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Senha incorreta' });
     }
 
-    // Se role não existir no banco, defina como 'user' por padrão
     const role = user.rows[0].role || 'user';
 
     const token = jwt.sign(
@@ -98,7 +93,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// 🔹 Obter Perfil do Usuário (Protegido)
 router.get('/profile', authMiddleware, async (req, res) => {
   try {
     const user = await pool.query('SELECT id, name, email, role FROM users WHERE id = $1', [req.user.id]);

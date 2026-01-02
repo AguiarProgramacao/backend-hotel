@@ -21,10 +21,8 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Servir arquivos estáticos corretamente
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Rotas
 app.use('/api/users', usersRoutes);
 app.use('/api/hotels', hotelsRoutes);
 app.use('/api/bookings', bookingsRoutes);

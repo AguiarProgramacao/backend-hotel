@@ -17,18 +17,15 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Rota para criar um novo hotel (Apenas Admins)
 router.post('/add', authMiddleware, upload.single('image'), async (req, res) => {
     const { name, description, location, price_per_night, available_rooms } = req.body;
     const image = req.file ? req.file.filename : null; // Verifica se a imagem foi enviada
 
     try {
-        // Verifica se o usuário tem permissão de admin
         if (req.user.role !== 'admin') {
             return res.status(403).json({ message: 'Acesso negado. Apenas administradores podem adicionar hotéis.' });
         }
 
-        // Insere o hotel no banco de dados
         const newHotel = await pool.query(
             'INSERT INTO hotels (name, description, location, price_per_night, available_rooms, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
             [name, description, location, price_per_night, available_rooms, image]
@@ -42,15 +39,13 @@ router.post('/add', authMiddleware, upload.single('image'), async (req, res) => 
     }
 });
 
-// Rota para listar todos os hotéis
 router.get('/', async (req, res) => {
     try {
         const hotels = await pool.query('SELECT id, name, description, location, price_per_night, available_rooms, image FROM hotels');
 
-        // Supondo que a pasta uploads esteja no diretório raiz
         const hotelsWithImageUrl = hotels.rows.map(hotel => {
             if (hotel.image) {
-                hotel.image = `http://192.168.0.107:5000/uploads/${hotel.image}`; 
+                hotel.image = `http://192.168.0.108:5000/uploads/${hotel.image}`; 
             }
             return hotel;
         });
@@ -62,8 +57,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-
-// Rota para buscar um hotel específico
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -80,7 +73,6 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Rota para atualizar um hotel (Apenas Admins)
 router.put('/update/:id', authMiddleware, upload.single('image'), async (req, res) => {
     const { id } = req.params;
     const { name, description, location, price_per_night, available_rooms } = req.body;
@@ -108,7 +100,6 @@ router.put('/update/:id', authMiddleware, upload.single('image'), async (req, re
     }
 });
 
-// Rota para deletar um hotel (Apenas Admins)
 router.delete('/delete/:id', authMiddleware, async (req, res) => {
     const { id } = req.params;
 
